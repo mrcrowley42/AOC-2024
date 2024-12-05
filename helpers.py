@@ -9,3 +9,6 @@ class Vector2:
         return (self.r, self.c)   
 
 directions = {"L": Vector2(0, -1), "R": Vector2(0, 1), "D": Vector2(-1, 0), "U": Vector2(1, 0)}
+
+def rows_to_columns(rows):
+    return list(map(list, zip(*rows)))
