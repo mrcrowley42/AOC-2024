@@ -9,16 +9,17 @@ with open("inputs/day7_input.txt") as file:
 def concat(a, b):
     return int(str(a) + str(b))
 
-
+# Part 1 remove |
 operation = {'*': operator.mul, '+': operator.add, '|': concat}
 
 
-def check_line(line):
+def check_line(line, ops):
     global done
     result, nums = line
     required_result = int(result)
     nums = list(map(int,nums.split()))
-    combinations = list(product(list("+*|"), repeat=len(nums)-1))
+    # parrt 1 remove |
+    combinations = list(product(list(ops), repeat=len(nums)-1))
     for operators in combinations:
         joined = []
         for i in range(len(nums)):
@@ -46,6 +47,10 @@ def check_line(line):
                 print((done /len(input)) *100, end="\r")
     return 0
 done = 0
-results = [check_line(line) for line in input]
-print("\n")
+results = [check_line(line, "+*") for line in input]
+
+print(sum(results))
+done = 0
+results = [check_line(line, "+*|") for line in input]
+
 print(sum(results))
