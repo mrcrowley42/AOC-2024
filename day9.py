@@ -13,10 +13,8 @@ for i in range(len(files)):
     if i < len(spaces):
         for b in range(int(spaces[i])):
             result.append('.')
-# print("".join(list(map(str, result))))
 
-# def sort_memory():
-
+blanks = [index for index, value in enumerate(result) if value == '.']
 
 iterations = 0
 for i in range(len(result)-1, -1, -1):
@@ -26,23 +24,16 @@ for i in range(len(result)-1, -1, -1):
     if '.' not in set(result[:i]):
         break
     if result[i] != '.':
-        for j in range(len(result)):
-            if result[j] == '.':
-                result[j] = result[i]
-                result[i] = '.'
+        for blank in blanks: 
+            result[blank] = result[i]
+            result[i] = '.'
+            blanks.pop(0)
+            break
 
-
-                
-    # print("".join(list(map(str, result))))
-
-
-
-# print(result)
 checksum = 0
 for i in range(len(result)):
     value = result[i]
     if value != '.':
-        # print(value*i)
         checksum += (i * value)
 print(checksum)
 
