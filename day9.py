@@ -54,7 +54,7 @@ for index, value in enumerate(result):
         file.append(index)
         current_id = value
         if space:
-           blanks.append([space[0], len(space)])
+           blanks.append(dict(start=space[0], length=len(space)))
            space = []
 if space:
     blanks.append([space[0], len(space)])
@@ -62,11 +62,35 @@ if space:
 if file:
     files.append(dict(start=file[0], length=len(file), id = result[file[0]]))
 
+files = files[::-1]
+# print("".join(map(str,result)))
+
+for file in files:
+    for index, blank in enumerate(blanks):
+        # print(index)
+        if file['length'] <= blank['length']:
+            if file['start'] >= blank['start']:
+                
+                for i in range(blank['start'], blank['start'] + file['length']):
+                    result[i] = file['id']
+
+                for i in range(file['start'], file['start'] + file['length']):
+                    result[i] = '.'
+                blank['length'] -= file['length']
+                blank['start'] += file['length']
+                if blank['length'] <= 0:
+                    blanks.pop(index)
+                break
+        # print("".join(map(str,result)))
+
+# print("".join(map(str,result)))
 
 
+checksum = sum([index * value for index, value in enumerate(result) if value != '.'])
+print(checksum)
 
 
-
+# ALTERNATE PART 1
 
 # with open("inputs/day9_input.txt") as file:
 #     input = file.read()
