@@ -1,4 +1,4 @@
-for i in range(10,15):
+for i in range(15,17):
     with open(f"inputs/day{i}_input.txt", "x") as fi:
         pass
     with open(f"day{i}.py", "x") as fi:
