@@ -1,14 +1,8 @@
-from time import time
-
 with open("inputs/day12_input.txt") as file:
     input = [list(line) for line in file.read().splitlines()]
 
-start_t = time()
-
-
 positions_to_check = {(r, c) for r, row in enumerate(input) for c, value in enumerate(row)}
 offsets = [(0, 1), (0, -1), (1, 0), (-1, 0)]
-
 
 def get_score(location, grid):
     start_value = grid[location[0]][location[1]]
@@ -28,22 +22,17 @@ def get_score(location, grid):
                 continue
             if (r2, c2) not in visited:
                 locations.append([r2, c2])
-
-            visited.add((r2, c2))
+                visited.add((r2, c2))
 
     for location in visited:
         if location in positions_to_check:
             positions_to_check.remove(location)
 
-    # return {start_value: (len(visited), edges)}
     return len(visited) * edges
 
 total = 0
-
 while positions_to_check:
     location = positions_to_check.pop()
-    result = get_score(location, input)
-    total += result
-
+    total += get_score(location, input)
+    
 print(total)
-print(time() - start_t)
