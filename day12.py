@@ -4,6 +4,23 @@ with open("inputs/day12_input.txt") as file:
 positions_to_check = {(r, c) for r, row in enumerate(input) for c, value in enumerate(row)}
 offsets = [(0, 1), (0, -1), (1, 0), (-1, 0)]
 
+
+def get_corners(location, grid):
+    blah = []
+    r, c = location
+    dirs = [-1, 0, 1]
+    for x in dirs:
+        for y in dirs:
+            if x == y == 0:
+                continue
+            r2, c2 = r + x, c + y
+            if not ( 0 <= r2 < len(grid) and 0 <= c2 < len(grid[0])):
+                continue
+        
+            blah.append(grid[r2][c2])
+    print(r,c, blah)
+
+
 def get_score(location, grid):
     start_value = grid[location[0]][location[1]]
     locations = [location]
@@ -24,7 +41,9 @@ def get_score(location, grid):
                 locations.append([r2, c2])
                 visited.add((r2, c2))
 
+    corners = 0
     for location in visited:
+        get_corners(location, grid)
         if location in positions_to_check:
             positions_to_check.remove(location)
 
