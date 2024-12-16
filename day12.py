@@ -4,22 +4,27 @@ with open("inputs/day12_input.txt") as file:
 positions_to_check = {(r, c) for r, row in enumerate(input) for c, value in enumerate(row)}
 offsets = [(0, 1), (0, -1), (1, 0), (-1, 0)]
 
+compass = {0: (-1, 0), 45: (-1, 1), 90: (0, 1), 135: (1, 1), 180: (1, 0), 225: (1, -1), 270: (0, -1), 315: (-1, -1), 360: (-1, 0)}
 
-def get_corners(location, grid):
-    blah = []
-    r, c = location
-    dirs = [-1, 0, 1]
-    for x in dirs:
-        for y in dirs:
-            if x == y == 0:
-                continue
-            r2, c2 = r + x, c + y
-            if not ( 0 <= r2 < len(grid) and 0 <= c2 < len(grid[0])):
-                continue
-        
-            blah.append(grid[r2][c2])
-    print(r,c, blah)
 
+def offset(a, b):
+    r1, c1 = a
+    r2, c2 = b
+
+    return (r1 + r2, c1 + c2)
+
+
+def is_corner(locations, a1, a2, d):
+    return ((a1 in locations and a2 in locations) and d not in locations) or (a1 not in locations and a2 not in locations)
+
+def get_corners(locations, grid):
+    corners = 0
+    for location in locations:
+        for i in range(4):
+            if is_corner(locations, offset(location, compass[0+(i*90)]),offset(location, compass[90+(90*i)]) , offset(location, compass[45 + (90*i)])):
+                corners += 1
+
+    return corners
 
 def get_score(location, grid):
     start_value = grid[location[0]][location[1]]
@@ -41,13 +46,13 @@ def get_score(location, grid):
                 locations.append([r2, c2])
                 visited.add((r2, c2))
 
-    corners = 0
+    corners = get_corners(visited, grid)
     for location in visited:
-        get_corners(location, grid)
         if location in positions_to_check:
             positions_to_check.remove(location)
-
-    return len(visited) * edges
+    print(start_value, corners)
+    # return len(visited) * edges
+    return len(visited) * corners
 
 total = 0
 while positions_to_check:
