@@ -125,9 +125,9 @@ for move in movelist:
             old_columns = [old_cols[c], old_cols[locations[0][1][1]]]
             for j in range(2):
                 old = old_columns[j]
-                print("".join(old))
+                # print("".join(old))
                 # for i in range(len(locations)):
-                #     warehouse[r][locations[i][1]] = old_row[locations[i][1]+direction]
+                #     warehouse[r][locations[i][1]] = old[locations[i][1]+direction]
                 #     print(locations[i])
 
             warehouse[r2][c2] = "."
