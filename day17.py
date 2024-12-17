@@ -23,17 +23,12 @@ def bdv(operand):
 def cdv(operand):
     registers["C"] = registers["A"] // (2**combo(operand))
 
-def combo(operand):
-    if operand < 4:
-        return operand
-    if operand == 4:
-        return registers['A']
-    if operand == 5:
-        return registers['B']
-    if operand == 6:
-        return registers['C']
+combo_map = {4: 'A', 5: 'B', 6: 'C'}
 
-operation = {0: adv, 1: bxl, 2: bst, 4: bxc, 6: bdv, 7: cdv}  
+def combo(operand):
+    return operand if operand < 4 else registers[combo_map[operand]]
+
+operation = {0: adv, 1: bxl, 2: bst, 4: bxc, 6: bdv, 7: cdv}
 
 index = 0
 output = []
@@ -54,9 +49,8 @@ while index < len(steps):
     index += 2
 
 print(",".join(list(map(str, output))))
-
-for i in range(1000000000):
-    # print(i,end="\r")
+MAX = 200_000
+for i in range(MAX):
     registers = {key: value for key, value in zip(list('ABC'), register)}
     registers["A"] = i
     index = 0
@@ -80,3 +74,4 @@ for i in range(1000000000):
     if output == steps:
         print(i)
         exit()
+print("Done")
