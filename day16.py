@@ -1,6 +1,5 @@
-# import heapq 
-from collections import deque
-
+import heapq 
+from collections import 
 
 with open("inputs/day16_input.txt") as file:
     maze = [list(line) for line in file.read().splitlines()]
@@ -13,7 +12,7 @@ def get_neighbours(r, c):
         dy, dx = offset
         r2, c2 = r + dy, c + dx
         if maze[r2][c2] != '#':
-            neighbours.append((r2, c2))
+            neighbours.append((r2, c2, deg))
     return neighbours
 
 def find_start_end(maze):
@@ -28,26 +27,22 @@ def find_start_end(maze):
 
 start, end = find_start_end(maze)
 r, c = start
-visited = {start}
-queue = deque([(0 ,r, c)])
+direction = 90
+visited = {(r, c, direction)}
+queue = [(0 ,r, c, direction)]
 
 while queue:
-    score, r, c = queue.popleft()
+    score, r, c, direction = heapq.heappop(queue)
+    visited.add((r, c, direction))
     if (r, c) == end:
         print(score)
         break
-    for location in get_neighbours(r, c):
-        if location in visited:
+    for nr, nc, deg in get_neighbours(r, c):
+        if (nr, nc, deg) in visited:
             continue
-        nr, nc = location
-        queue.append((score + 1, nr, nc))
-        visited.add((nr, nc))
+        diff = abs(deg - direction)
+        turns = 0 if diff == 0 else 1
+        new_score = score + 1 + ( turns * 1000)
+ 
 
-# direction = 90
-# r, c = start
-# visited = {(r, c, direction)}
-# pq = [(0, r, c, direction)]
-# while pq:
-#     cost, r, c, direction = heapq.heappop(pq)
-
-# print(search(start, end, maze))
+        heapq.heappush(queue, (new_score ,nr, nc, deg))
