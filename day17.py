@@ -2,8 +2,8 @@ with open("inputs/day17_input.txt") as file:
     input = file.read().split('\n\n')
 
 steps = list(map(int, input[1].split(':')[1].split(',')))
-registers = [int(line.split(":")[1]) for line in input[0].splitlines()]
-registers = {key: value for key, value in zip(list('ABC'), registers)}
+register = [int(line.split(":")[1]) for line in input[0].splitlines()]
+registers = {key: value for key, value in zip(list('ABC'), register)}
 
 def adv(operand):
     registers["A"] = registers["A"] // (2**combo(operand))
@@ -54,3 +54,29 @@ while index < len(steps):
     index += 2
 
 print(",".join(list(map(str, output))))
+
+for i in range(1000000000):
+    # print(i,end="\r")
+    registers = {key: value for key, value in zip(list('ABC'), register)}
+    registers["A"] = i
+    index = 0
+    output = []
+    while index < len(steps):
+        opcode = steps[index]
+        operand = steps[index + 1]
+        if opcode == 3:
+            if registers["A"] == 0:
+                pass
+            else:
+                index = operand
+                continue
+        elif opcode == 5:
+            value = combo(operand) % 8
+            output.append(value)
+        else:
+            operation[opcode](operand)
+        index += 2
+
+    if output == steps:
+        print(i)
+        exit()
