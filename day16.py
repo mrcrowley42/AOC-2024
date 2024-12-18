@@ -1,5 +1,5 @@
 import heapq 
-from collections import 
+
 
 with open("inputs/day16_input.txt") as file:
     maze = [list(line) for line in file.read().splitlines()]
@@ -15,17 +15,14 @@ def get_neighbours(r, c):
             neighbours.append((r2, c2, deg))
     return neighbours
 
-def find_start_end(maze):
-    for r, row in enumerate(maze):
-        for c, value in enumerate(row):
-            if value == 'S':
-                start = (r, c)
-            if value == 'E':
-                end = (r, c)
 
-    return start, end
+for r, row in enumerate(maze):
+    for c, value in enumerate(row):
+        if value == 'S':
+            start = (r, c)
+        if value == 'E':
+            end = (r, c)
 
-start, end = find_start_end(maze)
 r, c = start
 direction = 90
 visited = {(r, c, direction)}
@@ -40,9 +37,7 @@ while queue:
     for nr, nc, deg in get_neighbours(r, c):
         if (nr, nc, deg) in visited:
             continue
-        diff = abs(deg - direction)
-        turns = 0 if diff == 0 else 1
+        turns = 0 if deg == direction else 1
         new_score = score + 1 + ( turns * 1000)
- 
 
         heapq.heappush(queue, (new_score ,nr, nc, deg))
