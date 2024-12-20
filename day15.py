@@ -1,11 +1,4 @@
-with open("inputs/day15_input.txt") as file:
-    warehouse, movelist = file.read().split("\n\n")
-
-
-def print_warehouse(warehouse, robot_position):
-    warehouse[robot_position[0]][robot_position[1]] = '@'
-    [print(''.join(line)) for line in warehouse]
-    warehouse[robot_position[0]][robot_position[1]] = '.'
+from time import time as tt
 
 
 def gps_sum(warehouse, box_symbol):
@@ -25,121 +18,195 @@ def get_robot(grid):
                 return (r, c)
 
 
-def push_box(r, c, dy, dx, warehouse):
+def print_warehouse(warehouse, r, c):
+    warehouse[r][c] = '@'
+    [print(''.join(line)) for line in warehouse]
+    warehouse[r][c] = '.'
+
+
+def push_box(r, c, dr, dc, warehouse):
+    targets = []
+    r += dr
+    c += dc
+    targets.append((r, c))
     can_move = False
+    if warehouse[r][c] == "#":
+        return can_move, targets
+
     while warehouse[r][c] == 'O':
-        r, c = r + dy, c + dx
+        r += dr
+        c += dc
+        targets.append((r, c))
+
     if warehouse[r][c] == '.':
         can_move = True
-    return can_move, (r, c)
+
+    return can_move, targets
 
 
 direction_map = {'^': (-1, 0), '>': (0, 1), 'v': (1, 0), '<': (0, -1)}
+replacements = {'#': '##', 'O': '[]', '.': '..', '@': '@.'}
+
+with open("inputs/day15_input.txt") as file:
+    warehouse, movelist = file.read().split("\n\n")
+
 warehouse = [list(line) for line in warehouse.splitlines()]
 movelist = "".join([line for line in movelist.splitlines()])
+
 og_warehouse = [list(row) for row in warehouse]
+startt = tt()
 
-robot_position = get_robot(warehouse)
-warehouse[robot_position[0]][robot_position[1]] = '.'
+r, c = get_robot(warehouse)
+warehouse[r][c] = '.'
 
 for move in movelist:
-    r, c = robot_position
-    dy, dx = direction_map[move]
-    r2, c2 = r + dy, c + dx
-    if warehouse[r2][c2] == "#":
+    dr, dc = direction_map[move]
+    can_move, targets = push_box(r, c, dr, dc, warehouse)
+    if not can_move:
         continue
-    if warehouse[r2][c2] == "O":
-        can_move, (endr, endc) = push_box(r2, c2, dy, dx, warehouse)
-        if not can_move:
-            continue
-        warehouse[endr][endc] = "O"
-        warehouse[r2][c2] = "."
-    robot_position = (r2, c2)
-
-### PART 1
-# print_warehouse(warehouse, robot_position)
-print(gps_sum(warehouse, "O"))
-
-# PART 2
-# BUILD BIGGER WAREHOUSE
+    tr, tc = targets[::-1][0]
+    warehouse[tr][tc] = "O"
+    r += dr
+    c += dc
+    warehouse[r][c] = "."
 
 
-def enlarge_warehouse(warehouse):
-    replacements = {'#': '##', 'O': '[]', '.': '..', '@': '@.'}
-    large_warehouse = []
-    for row in warehouse:
-        new_row = [replacements[value] for value in row]
-        large_warehouse.append(list("".join(new_row)))
+# print(gps_sum(warehouse, "O"))
 
-    return large_warehouse
+warehouse = [list("".join(replacements[value] for value in row)) for row in og_warehouse]
+r, c = get_robot(warehouse)
+warehouse[r][c] = '.'
 
 
-warehouse = enlarge_warehouse(og_warehouse)
-
-robot_position = get_robot(warehouse)
-warehouse[robot_position[0]][robot_position[1]] = '.'
-
-
-def push_big_box_vertical(r, c, dy, warehouse):
+def push_big_box(r, c, dr, dc, warehouse):
+    targets = []
+    r += dr
+    c += dc
+    targets.append((r, c))
     can_move = False
-    locations = []
-    offset = -1 if warehouse[r][c] == "]" else 1
-    while warehouse[r][c] in list('[]') and warehouse[r][c+offset] in list('[]'):
-        r, c = r + dy, c + dx
-        locations.append([[r, c], [r, c + offset]])
-    if warehouse[r][c] == warehouse[r][c+offset] == '.':
+    if warehouse[r][c] == "#":
+        return can_move, targets
+
+    while warehouse[r][c] == 'O':
+        r += dr
+        c += dc
+        targets.append((r, c))
+
+    if warehouse[r][c] == '.':
         can_move = True
-    return can_move, locations
 
-
-def push_big_box_sideways(r, c, dx, warehouse):
-    can_move = False
-    locations = []
-
-    if move in list('<>'):
-        while warehouse[r][c] in list('[]'):
-            r, c = r + dy, c + dx
-            locations.append([r, c])
-        if warehouse[r][c] == '.':
-            can_move = True
-
-    return can_move, locations
-
+    return can_move, targets
 
 for move in movelist:
-    r, c = robot_position
-    dy, dx = direction_map[move]
-    r2, c2 = r + dy, c + dx
-    if warehouse[r2][c2] == "#":
+    dr, dc = direction_map[move]
+    can_move, targets = push_big_box(r, c, dr, dc, warehouse)
+    if not can_move:
         continue
-    if warehouse[r2][c2] in list('[]'):
-        if move in list("><"):
-            can_move, locations = push_big_box_sideways(r2, c2, dx, warehouse)
-            if not can_move:
-                continue
-            direction = 1 if move == '<' else -1
-            old_row = [x for x in warehouse[r]]
-            for i in range(len(locations)):
-                warehouse[r][locations[i][1]
-                             ] = old_row[locations[i][1]+direction]
-            warehouse[r2][c2] = "."
-        else:
-            can_move, locations = push_big_box_vertical(r2, c2, dy, warehouse)
-            if not can_move:
-                continue
-            direction = 1 if move == '^' else -1
-            old_cols = list(map(list, zip(*warehouse)))
-            old_columns = [old_cols[c], old_cols[locations[0][1][1]]]
-            for j in range(2):
-                old = old_columns[j]
-                # print("".join(old))
-                # for i in range(len(locations)):
-                #     warehouse[r][locations[i][1]] = old[locations[i][1]+direction]
-                #     print(locations[i])
+    tr, tc = targets[::-1][0]
+    warehouse[tr][tc] = "O"
+    r += dr
+    c += dc
+    warehouse[r][c] = "."
 
-            warehouse[r2][c2] = "."
-
-    robot_position = (r2, c2)
-
-print_warehouse(warehouse, robot_position)
+print_warehouse(warehouse, r, c)
 print(gps_sum(warehouse, "["))
+
+# def push_big_box_vertical(r, c, dy, warehouse):
+#     can_move = True
+#     offset = -1 if warehouse[r][c] == "]" else 1
+#     locations = []
+#     # warehouse[r][c] = '.'
+#     # warehouse[r][c+offset] = '.'
+#     locations = [[r, c], [r, c+ offset]]
+#     to_check = [[r, c], [r, c+ offset]]
+
+#     while to_check:
+#         r, c = to_check.pop()
+#         r2, c2 = r + dy, c + dx
+
+#         if warehouse[r2][c2] == "#":
+#             can_move = False
+#             break
+
+#         elif warehouse[r2][c2] == warehouse[r][c]:
+#             to_check.append([r2, c2])
+#             locations.append([r2, c2])
+
+#         elif warehouse[r2][c2] == "]" and warehouse[r][c] == "[":
+#             to_check.append([r2, c2])
+#             to_check.append([r2, c2 - 1])
+#             locations.append([r2, c2 -1])
+#             locations.append([r2, c2])
+
+#         elif warehouse[r2][c2] == "[" and warehouse[r][c] == "]":
+#             to_check.append([r2, c2])
+#             to_check.append([r2, c2 + 1])
+#             locations.append([r2, c2 + 1])
+#             locations.append([r2, c2])
+
+#         else:
+
+#             locations.append([r2, c2])
+
+
+#     return can_move, locations
+
+
+# def push_big_box_sideways(r, c, dx, warehouse):
+#     can_move = False
+#     locations = []
+
+#     if move in list('<>'):
+#         while warehouse[r][c] in list('[]'):
+#             r, c = r + dy, c + dx
+#             locations.append([r, c])
+#         if warehouse[r][c] == '.':
+#             can_move = True
+
+#     return can_move, locations
+
+# print_warehouse(warehouse, robot_position)
+# for move in movelist[:-2]:
+#     r, c = robot_position
+#     dy, dx = direction_map[move]
+#     r2, c2 = r + dy, c + dx
+#     if warehouse[r2][c2] == "#":
+#         continue
+#     if warehouse[r2][c2] in list('[]'):
+#         if move in list("><"):
+#             can_move, locations = push_big_box_sideways(r2, c2, dx, warehouse)
+#             if not can_move:
+#                 continue
+#             direction = 1 if move == '<' else -1
+#             old_row = [x for x in warehouse[r]]
+#             for i in range(len(locations)):
+#                 warehouse[r][locations[i][1]
+#                              ] = old_row[locations[i][1]+direction]
+#             warehouse[r2][c2] = "."
+#         else:
+#             can_move, locations = push_big_box_vertical(r2, c2, dy, warehouse)
+#             if not can_move:
+#                 continue
+#             old_warehouse = list([list(x) for x in warehouse])
+#             gg = list([list(x) for x in warehouse])
+#             print(locations)
+#             for location in locations:
+#                 r3, c3 = location
+#                 gg[r3][c3] = "x"
+#                 warehouse[r3][c3] = old_warehouse[r3+-dy][c3]
+
+#             if warehouse[r2+dy][c2] == "[":
+#                 warehouse[r2][c2+1] = "."
+
+#             if warehouse[r2+dy][c2] == "]":
+#                 warehouse[r2][c2-1] = "."
+#             warehouse[r2][c2] = "."
+
+
+#             # [print(''.join(line)) for line in gg]
+#     robot_position = (r2, c2)
+#     print(move)
+#     print_warehouse(warehouse, robot_position)
+
+
+# print(gps_sum(warehouse, "["))
