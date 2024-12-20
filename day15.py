@@ -80,35 +80,44 @@ warehouse[r][c] = '.'
 
 def push_big_box(r, c, dr, dc, warehouse):
     targets = []
-    r += dr
-    c += dc
     targets.append((r, c))
-    can_move = False
-    if warehouse[r][c] == "#":
-        return can_move, targets
+    can_move = True
 
-    while warehouse[r][c] == 'O':
-        r += dr
-        c += dc
-        targets.append((r, c))
-
-    if warehouse[r][c] == '.':
-        can_move = True
+    for tr, tc in targets:
+        nr = tr + dr
+        nc = tc + dc
+        if warehouse[nr][nc] == "#":
+            return False, []
+        if (nr, nc) in targets:
+            continue
+        if warehouse[nr][nc] == "[":
+            targets.append((nr, nc))
+            targets.append((nr, nc +1))
+        
+        if warehouse[nr][nc] == "]":
+            targets.append((nr, nc))
+            targets.append((nr, nc - 1))
 
     return can_move, targets
+
 
 for move in movelist:
     dr, dc = direction_map[move]
     can_move, targets = push_big_box(r, c, dr, dc, warehouse)
     if not can_move:
         continue
-    tr, tc = targets[::-1][0]
-    warehouse[tr][tc] = "O"
+    copy = [list(row) for row in warehouse]
+    for tr, tc in targets:
+        warehouse[tr][tc] = "."
+
+    for tr, tc in targets:
+        warehouse[tr + dr][tc + dc] = copy[tr][tc]
     r += dr
     c += dc
     warehouse[r][c] = "."
+    # print_warehouse(warehouse, r, c)
 
-print_warehouse(warehouse, r, c)
+
 print(gps_sum(warehouse, "["))
 
 # def push_big_box_vertical(r, c, dy, warehouse):

@@ -26,13 +26,13 @@ def control_steps(start, grid):
     return score, score_map
 
 
-# def should_skip(r, c, grid):
-#     around = 0
-#     for dr, dc in direction_map.values():
-#         nr, nc = r + dr, c + dc
-#         if grid[nr][nc] == "#":
-#             around += 1
-#     return around > 3
+def should_skip(r, c, grid):
+    around = 0
+    for dr, dc in direction_map.values():
+        nr, nc = r + dr, c + dc
+        if grid[nr][nc] == "#":
+            around += 1
+    return around > 4
 
 for r, row in enumerate(input):
     for c, value in enumerate(row):
@@ -53,26 +53,26 @@ print(score_map)
 
 spots = []
 
-# def find_place(r, c):
-#     for dr, dc in direction_map.values():
-#         nr, nc = r + dr, c + dc
-#         if (nr, nc) in score_map.keys():
-#             return (nr, nc)
+def find_place(r, c):
+    for dr, dc in direction_map.values():
+        nr, nc = r + dr, c + dc
+        if (nr, nc) in score_map.keys():
+            return (nr, nc)
         # if grid[nr][nc] == "#":
 
-# for r_index in range(1, len(input) -1):
-#     for c_index in range(1, len(input[0]) -1):
-#         # checked += 1
-#         # if checked > 1000:
-#         #     continue
-#         if input[r_index][c_index] != "#":
-#             continue
-#         if should_skip(r_index, c_index, input):
-#             continue
-#         # nr, nc = find_place(r_index, c_index)
-#         spots.append((r_index, c_index))
+for r_index in range(1, len(input) -1):
+    for c_index in range(1, len(input[0]) -1):
+        # checked += 1
+        # if checked > 1000:
+        #     continue
+        if input[r_index][c_index] != "#":
+            continue
+        if should_skip(r_index, c_index, input):
+            continue
+        # nr, nc = find_place(r_index, c_index)
+        spots.append((r_index, c_index))
 
-# print(len(spots))
+print(len(spots))
 
 
 def search(cheat):
