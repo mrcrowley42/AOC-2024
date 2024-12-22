@@ -7,7 +7,7 @@ def mix_prune(secret, num):
 
 
 def next_number(secret):
-    secret = mix_prune(secret, 64 * secret)
+    secret = mix_prune(secret, secret * 64)
     secret = mix_prune(secret, secret // 32)
     secret = mix_prune(secret, secret * 2048)
 
