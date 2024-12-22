@@ -1,27 +1,28 @@
 with open("inputs/day22_input.txt") as file:
     input = list(map(int, file.read().splitlines()))
 
+
+def mix_prune(secret, num):
+    return (secret ^ num) % 16777216
+
+
 def next_number(secret):
-    num = 64 * secret
-    secret = secret ^ num
-    secret = secret % 16777216
-    num = secret // 32
-    secret = secret ^ num
-    secret = secret % 16777216
-    num = secret * 2048
-    secret = secret ^ num
-    secret = secret % 16777216
+    secret = mix_prune(secret, 64 * secret)
+    secret = mix_prune(secret, secret // 32)
+    secret = mix_prune(secret, secret * 2048)
 
     return secret
 
-scores = 0
 
+scores = 0
 for secret in input:
     for i in range(2000):
         secret = next_number(secret)
     scores += secret
-    
+
 print(scores)
+
+
 
 # for line in input:
 #     secret = line
