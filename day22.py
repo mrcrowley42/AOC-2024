@@ -23,16 +23,22 @@ for secret in input:
 print(scores)
 
 
+total_for_sequences = dict()
 
-# for line in input:
-#     secret = line
-#     prices = [int(str(secret)[-1]),]
-#     for i in range(10):
-#         secret = next_number(secret)
-#         price = int(str(secret)[-1])
-#         prices.append(price)
-#         print(prices)
-#         # print(secret)
-#     scores += secret
-    
-# print(scores)
+for line in input:
+    secret = line
+    sequence = [secret % 10]
+    for i in range(2000):
+        secret = next_number(secret)
+        price = secret % 10
+        sequence.append(price)
+    seen = set()
+    for i in range(len(sequence)-4):
+        subseq = sequence[i:i+5]
+        diffs = tuple([subseq[j+1] - subseq[j] for j in range(len(subseq)-1)])
+        if diffs in seen:
+            continue
+        seen.add(diffs)
+        total_for_sequences[diffs] = total_for_sequences.get(diffs, 0) + subseq[-1]
+
+print(max(total_for_sequences.values()))
