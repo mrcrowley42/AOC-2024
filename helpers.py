@@ -12,3 +12,5 @@ directions = {"L": Vector2(0, -1), "R": Vector2(0, 1), "D": Vector2(-1, 0), "U":
 
 def rows_to_columns(rows):
     return list(map(list, zip(*rows)))
+
+direction_map = {'^': (-1, 0), '>': (0, 1), 'v': (1, 0), '<': (0, -1)}
