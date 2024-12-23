@@ -14,3 +14,9 @@ def rows_to_columns(rows):
     return list(map(list, zip(*rows)))
 
 direction_map = {'^': (-1, 0), '>': (0, 1), 'v': (1, 0), '<': (0, -1)}
+
+
+# with open("19-10.txt") as file:
+input = [list(line) for line in file.read().splitlines()]
+
+[print("".join(line)) for line in input]
