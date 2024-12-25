@@ -20,3 +20,8 @@ direction_map = {'^': (-1, 0), '>': (0, 1), 'v': (1, 0), '<': (0, -1)}
 input = [list(line) for line in file.read().splitlines()]
 
 [print("".join(line)) for line in input]
+
+with open("21-9.txt") as file:
+    input = [list(map(int, list(line))) for line in file.read().splitlines()]
+
+[print("".join(list(map(str, line)))) for line in input]
