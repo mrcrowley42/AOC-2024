@@ -1,43 +1,70 @@
-import heapq 
-
+from time import time
+from collections import defaultdict
+import heapq
 
 with open("inputs/day16_input.txt") as file:
     maze = [list(line) for line in file.read().splitlines()]
 
-direction_map = {0: (-1, 0), 90: (0, 1), 180: (1, 0), 270: (0, -1)}
+directions = {0: (-1, 0), 90: (0, 1), 180: (1, 0), 270: (0, -1)}
 
-def get_neighbours(r, c):
+
+def get_neighbours(r, c, grid):
     neighbours = []
-    for deg, offset in direction_map.items():
-        dy, dx = offset
-        r2, c2 = r + dy, c + dx
-        if maze[r2][c2] != '#':
-            neighbours.append((r2, c2, deg))
+    for direction, offset in directions.items():
+        dr, dc = offset
+        nr, nc = r + dr, c + dc
+        if grid[nr][nc] == '#':
+            continue
+        neighbours.append((nr, nc, direction))
+
     return neighbours
 
 
-for r, row in enumerate(maze):
-    for c, value in enumerate(row):
-        if value == 'S':
-            start = (r, c)
-        if value == 'E':
-            end = (r, c)
+def locate_start_end(maze):
+    start = end = None
+    for r, row in enumerate(maze):
+        for c, value in enumerate(row):
+            if value == 'S':
+                start = (r, c)
+                if end:
+                    return start, end
+            if value == 'E':
+                end = (r, c)
+                if start:
+                    return start, end
 
+
+start, end = locate_start_end(maze)
 r, c = start
 direction = 90
-visited = {(r, c, direction)}
-queue = [(0 ,r, c, direction)]
+queue = [(0, r, c, direction, ((r, c),))]
+best_paths = []
 
-while queue:
-    score, r, c, direction = heapq.heappop(queue)
-    visited.add((r, c, direction))
+best_score = float("inf")
+def bs(): return best_score
+
+
+visted = defaultdict(bs)
+startt = time()
+while queue and queue[0][0] <= best_score:
+    score, r, c, direction, path = heapq.heappop(queue)
     if (r, c) == end:
-        print(score)
-        break
-    for nr, nc, deg in get_neighbours(r, c):
-        if (nr, nc, deg) in visited:
-            continue
-        turns = 0 if deg == direction else 1
-        new_score = score + 1 + ( turns * 1000)
+        best_score = score
+        best_paths.append(path)
+        continue
 
-        heapq.heappush(queue, (new_score ,nr, nc, deg))
+    if score > visted[(r, c, direction)]:
+        continue
+    visted[(r, c, direction)] = score
+
+    for nr, nc, new_direction in get_neighbours(r, c, maze):
+        if (nr, nc) in path:
+            continue
+        new_score = score + 1001 if new_direction != direction else score + 1
+        heapq.heappush(queue, (new_score, nr, nc,
+                       new_direction, path + ((nr, nc),)))
+
+
+positions = {(x, y) for path in best_paths for x, y in path}
+print(len(positions))
+print(time() - startt)
