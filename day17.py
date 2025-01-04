@@ -49,8 +49,8 @@ while index < len(steps):
     index += 2
 
 print(",".join(list(map(str, output))))
-MAX = 200_000
-for i in range(MAX):
+MAX = 200_0000
+for i in range(MAX, 9999999):
     registers = {key: value for key, value in zip(list('ABC'), register)}
     registers["A"] = i
     index = 0
