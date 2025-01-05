@@ -49,8 +49,7 @@ while index < len(steps):
     index += 2
 
 print(",".join(list(map(str, output))))
-MAX = 200_0000
-for i in range(MAX, 9999999):
+for i in range(100):
     registers = {key: value for key, value in zip(list('ABC'), register)}
     registers["A"] = i
     index = 0
@@ -70,8 +69,11 @@ for i in range(MAX, 9999999):
         else:
             operation[opcode](operand)
         index += 2
-
+    print(output)
+    # print(len(output))
+    # print(steps)
     if output == steps:
+   
         print(i)
         exit()
 print("Done")

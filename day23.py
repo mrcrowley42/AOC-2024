@@ -1,15 +1,16 @@
 from itertools import combinations
-
-
+from collections import defaultdict
+from time import time
+start = time()
 with open("inputs/day23_input.txt") as file:
     input = file.read().splitlines()
 
-connections = dict()
+connections = defaultdict(set)
 
 for line in input:
     a, b = line.split("-")
-    connections[a] = connections.get(a, []) + [b]
-    connections[b] = connections.get(b, []) + [a]
+    connections[a].add(b)
+    connections[b].add(a)
 
 def is_viable(trio):
     a, b, c = trio
@@ -22,10 +23,23 @@ def is_viable(trio):
     
     return True
 
-possible = (trio for trio in combinations(connections.keys(), r=3) if any([x.startswith("t") for x in trio]))
-total = 0
-for trio in possible:
-    if is_viable(trio):
-        total += 1
+# possible = [trio for trio in combinations(connections.keys(), r=3) if any([x.startswith("t") for x in trio])]
+# total = 0
+# for trio in possible:
+#     if is_viable(trio):
+#         total += 1
 
-print(total)
+# print(total)
+# print(time() - start)
+# print(len(possible))
+
+sets = set()
+
+for x in connections:
+    for y in connections[x]:
+        for z in connections[y]:
+            if x != z and x in connections[z]:
+                sets.add(tuple(sorted([x, y, z])))
+
+
+print(len([s for s in sets if any(cn.startswith("t") for cn in s)]))
