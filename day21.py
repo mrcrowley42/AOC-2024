@@ -1,17 +1,20 @@
 from collections import deque
 from time import time
 from itertools import product
+from functools import cache
 with open("inputs/day21_input.txt") as file:
     input = file.read().splitlines()
 
 direction_map = {'^': (-1, 0), '>': (0, 1), 'v': (1, 0), '<': (0, -1)}
-keypad = [list("789"), list("456"), list("321"), list("X0A")]
+keypad = [list("789"), list("456"), list("123"), list("X0A")]
 remote = [list('X^A'), list("<v>")]
 keypad_start = (3, 2)
+remote_start = (0, 2)
 
-def find_paths(device, start):
+
+def find_paths(target_keys, device, start):
     possible = []
-    for target_key in input[0]:
+    for target_key in target_keys:
         sr, sc = start
         queue = deque([(sr, sc, "", (sr, sc))])
         good = []
@@ -28,9 +31,10 @@ def find_paths(device, start):
                     continue
                 if device[nr][nc] == target_key:
                     if len(sequence) + 1 <= target_length:
+                        start = (nr, nc)
                         good.append(sequence + key + "A")
                         target_length = len(sequence) + 1
-                        start = (nr, nc)
+
                     continue
                 queue.append((nr, nc, sequence + key, path + ((nr, nc),)))
         if possible:
@@ -38,138 +42,54 @@ def find_paths(device, start):
         else:
             possible = good
 
-    return(list(possible))
-
-keypad_paths = find_paths(keypad, keypad_start)
-print(keypad_paths)
-
-#                     if best_len < len(path) + 1:
-#                         break
-
-#                     best_len = len(path) + 1
-#                     found_paths.append("".join(presses) + key + "A")
-#                     # new_start = (r, c)
-#                     continue
-#                 else:
-#                     queue.append((nr, nc, 
-
-# def find_keypad_paths(device, start, target_code):
-#     valid_paths = []
-#     for target_key in target_code:
-#         r, c = start
-#         queue = deque([(r, c, (), ())])
-#         best_len = float('inf')
-#         found_paths = []
-#         new_start = None
-#         while queue:
-#             r, c, path, presses = queue.popleft()
-#             for key, (dr, dc) in direction_map.items():
-#                 nr, nc = r + dr, c + dc
-#                 if nr < 0 or nc < 0 or nc >= len(device[0]) or nr >= len(device):
-#                     continue
-#                 if device[nr][nc] == "X":
-#                     continue
-#                 if (nr, nc) in path:
-#                     continue
-#                 if device[r][c] == target_key:
-#                     if best_len < len(path) + 1:
-#                         break
-
-#                     best_len = len(path) + 1
-#                     found_paths.append("".join(presses) + key + "A")
-#                     # new_start = (r, c)
-#                     continue
-#                 else:
-#                     queue.append((nr, nc, path + ((nr, nc),), presses + (key,)))
-
-#         continued_path = []
-#         if valid_paths:
-#             for existing in valid_paths:
-#                 for pathway in found_paths:
-#                     continued_path.append(existing + pathway)
-#         else:
-#             continued_path = found_paths
-#         valid_paths = continued_path
-
-#         # start = new_start
-#         print(valid_paths)
-#     return set(valid_paths)
+    return tuple(possible)
 
 
-# start_t = time()
-# total = 0
+key_pad_map = dict()
 
-# for line in input:
-#     paths = (find_keypad_paths(keypad, (3, 2), line))
-    # print(paths)
-    # print(len(paths))
-    # best_length = float('inf')
-    # paths = [find_keypad_paths(remote, (0, 2), path) for path in paths]
-#     next_paths = []
-#     for x in paths:
-#         for y in x:
-#             if len(y) <=  best_length:
-#                 best_length = len(y)
-#                 next_paths.append(y)
+for r, row in enumerate(keypad):
+    for c, value in enumerate(row):
+        for destination in list("0123456789A"):
+            if value == destination:
+                key_pad_map[(value, destination)] = ['A']
+            else:
+                key_pad_map[(value, destination)] = find_paths(
+                    destination, keypad, (r, c))
 
-#     best_length = float('inf')
-#     paths = [find_keypad_paths(remote, (0, 2), path) for path in next_paths]
-#     next_paths = []
-#     for x in paths:
-#         for y in x:
-#             if len(y) <=  best_length:
-#                 best_length = len(y)
-#                 next_paths.append(y)
+dir_pad_map = dict()
+
+for r, row in enumerate(remote):
+    for c, value in enumerate(row):
+        for destination in list("<>v^A"):
+            if value == destination:
+                dir_pad_map[(value, destination)] = ['A']
+            else:
+                dir_pad_map[(value, destination)] = find_paths(
+                    destination, remote, (r, c))
 
 
-#     print(next_paths)
+def faster_solve(device_map, code):
+    start = "A"
+    paths = []
+    for key in code:
+        paths.append(device_map[start, key])
+        start = key
 
-#     total += best_length * int("".join([char for char in line if char.isdigit()]))
-
-# print(total)
-# print(time() - start_t)
-# for path in next_paths:
-#     print(len(path))
-
-# def path_to_key(start, target, device):
-#     r, c = start
-#     queue = deque([(r, c, 0, ())])
-#     while queue:
-#         r, c, score, path = queue.popleft()
-
-#         if device[r][c] == target:
-#             return "".join(path) + "A", (r, c)
-
-#         for key, (dr, dc) in direction_map.items():
-#             nr, nc = r + dr, c + dc
-#             if nr < 0 or nc < 0 or nc >= len(device[0]) or nr >= len(device):
-#                 continue
-#             if device[nr][nc] == "X":
-#                 continue
-
-#             queue.append((nr, nc, score + 1, path + ((key),) ))
-
-# start = (3, 2)
+    return ["".join(x) for x in list(product(*paths))]
 
 
-# def path_for_sequence(target, start, device):
-#     full_path = ""
-#     for key in target:
-#         path, start = path_to_key(start, key, device)
-#         full_path += path
+def find_complexity(code):
+    sequence = faster_solve(key_pad_map, code)
+    for _ in range(2):
+        possible_next = []
+        for seq in sequence:
+            possible_next += faster_solve(dir_pad_map, seq)
 
-#     return full_path
+        min_len = min(map(len, possible_next))
+        sequence = [seq for seq in possible_next if len(seq) == min_len]
+
+    numeric_part = int("".join([char for char in code if char.isdigit()]))
+    return len(sequence[0]) * numeric_part
 
 
-# def find_complexity(target):
-#     start = (3, 2)
-#     pad_start = (0, 2)
-#     required_buttons = path_for_sequence(target, start, keypad)
-#     required_buttons = path_for_sequence(required_buttons, pad_start, remote)
-#     required_buttons = path_for_sequence(required_buttons, pad_start, remote)
-
-#     numeric_part = int("".join([char for char in target if char.isdigit()]))
-#     print(len(required_buttons), numeric_part)
-#     return len(required_buttons) * numeric_part
-
-# print(sum([find_complexity(target) for target in input]))
+print(sum([find_complexity(target) for target in input]))
